@@ -22,6 +22,10 @@ class prime {
     private $NonePrimeNumberCount = 0;
 
     private $DividerNumbers = [];
+
+    private $DividerCount = 0;
+
+    private $CheckCount = 0;
     
     private $StartTime = null;
     
@@ -34,6 +38,8 @@ class prime {
     private static $TestLimit = 10000;
     
     private static $StartingFrom = 3;
+
+    private static $TestAgainstAllDividers = false;
 
     private function NumberIsDivisibleByDivider( int $Number, int $Divider ) : bool
     {
@@ -58,9 +64,23 @@ class prime {
         return !$this->isEven( $Number );
     }
 
+    private function getFirstXDividers( float $X ) : array
+    {
+        return array_slice( $this->DividerNumbers, 0, ceil( $this->DividerCount * $X ) );
+    }
+
     private function getDividersFormNumber( int $Number ) : array
     {
+        if ( !static::$TestAgainstAllDividers )
+        {
+            return $this->getFirstXDividers( $this->getPrimeCountMultiplier( $Number ) );
+        }
         return $this->DividerNumbers;
+    }
+
+    public function getPrimeCountMultiplier( int $Number )
+    {
+        return 1 / ( ( strlen( $Number ) * strlen( $Number ) - 1 ) + 1 ) / ceil( strlen( $Number ) / 4 );
     }
     
     public function __construct( int $ConstructionJob = self::DO_NOTHING )
@@ -82,11 +102,16 @@ class prime {
         }
         if ( $Number < 1 ) return false;
         if ( $Number > 2 && $this->isEven( $Number ) ) return false; # If $Number is even: Then $Number is divisible by 2 and therefore is not prime
+        if ( $Number > 3 && $this->NumberIsDivisibleByDivider( $Number, 3 ) ) return false;
+        if ( $Number > 5 && $this->NumberIsDivisibleByDivider( $Number, 5 ) ) return false;
+        if ( $Number > 7 && $this->NumberIsDivisibleByDivider( $Number, 7 ) ) return false;
+        if ( $Number > 9 && $this->NumberIsDivisibleByDivider( $Number, 9 ) ) return false;
         $Dividers = $this->getDividersFormNumber( $Number );
         if ( count( $Dividers ) )
         {
             foreach ( $Dividers as $Divider )
             {
+                $this->CheckCount++;
                 if ( $this->NumberIsDivisibleByDivider( $Number, $Divider ) ) return false;
             }
         }
@@ -103,6 +128,7 @@ class prime {
             {
                 $this->PrimeNumberCount++;
                 $this->PrimeNumbers[] = $Number;
+                $this->DividerCount++;
                 $this->DividerNumbers[] = $Number;
             }
             else
@@ -130,6 +156,11 @@ class prime {
         return $this->PrimeNumberCount;
     }
 
+    public function getCheckCount() : int
+    {
+        return $this->CheckCount;
+    }
+
     public function getLastBuildPrimeNumbersTime() : float
     {
         return $this->EndTime - $this->StartTime;
@@ -145,34 +176,39 @@ class prime {
         static::$Workers = $Workers;
     }
 
-    public static function getTimeLimit()
+    public static function getTimeLimit() : int
     {
         return static::$TimeLimit;
     }
 
-    public static function setTimeLimit( $TimeLimit )
+    public static function setTimeLimit( int $TimeLimit )
     {
         static::$TimeLimit = $TimeLimit;
     }
 
-    public static function getTestLimit()
+    public static function getTestLimit() : int
     {
         return static::$TestLimit;
     }
 
-    public static function setTestLimit( $TestLimit )
+    public static function setTestLimit( int $TestLimit )
     {
         static::$TestLimit = $TestLimit;
     }
 
-    public static function getStartingFrom()
+    public static function getStartingFrom() : int
     {
         return static::$StartingFrom;
     }
 
-    public static function setStartingFrom( $StartingFrom )
+    public static function setStartingFrom( int $StartingFrom )
     {
         static::$StartingFrom = $StartingFrom;
+    }
+
+    public static function setTestAgainstAllDividers( bool $TestAgainstAllDividers )
+    {
+        static::$TestAgainstAllDividers = $TestAgainstAllDividers;
     }
 
 }
