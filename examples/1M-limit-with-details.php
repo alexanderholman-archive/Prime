@@ -1,6 +1,6 @@
 <?php
 
-require_once 'prime.class.php';
+require_once '../prime.class.php';
 
 use \alexanderholman\prime as prime;
 
